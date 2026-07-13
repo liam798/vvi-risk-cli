@@ -2,7 +2,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { spawn } from 'node:child_process'
 import { randomBytes, timingSafeEqual } from 'node:crypto'
 import type { AddressInfo } from 'node:net'
-import { getConfigPath, readConfigFile, type RuntimeConfig, writeConfigFile } from './config.js'
+import { getConfigPath, type RuntimeConfig, writeRuntimeToken } from './config.js'
 import { CliError } from './output.js'
 
 type LoginOptions = {
@@ -33,12 +33,7 @@ export async function loginWithMemHub(config: RuntimeConfig, options: LoginOptio
     if (!token) {
       throw new CliError('MemHub 登录成功但未返回 token', { code: 'OAUTH_TOKEN_MISSING' })
     }
-    const current = readConfigFile()
-    writeConfigFile({
-      ...current,
-      baseUrl: config.baseUrl,
-      token,
-    })
+    writeRuntimeToken(config, token)
     return {
       configPath: getConfigPath(),
       username: loginResult.username ?? null,

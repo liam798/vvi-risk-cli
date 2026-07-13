@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path'
 export type CliConfig = {
   baseUrl?: string
   token?: string
+  tokenUpdatedAt?: string
 }
 
 export type RuntimeConfig = {
@@ -34,6 +35,16 @@ export function readConfigFile(path = getConfigPath()): CliConfig {
 export function writeConfigFile(config: CliConfig, path = getConfigPath()): void {
   mkdirSync(dirname(path), { recursive: true })
   writeFileSync(path, `${JSON.stringify(config, null, 2)}\n`, 'utf8')
+}
+
+export function writeRuntimeToken(config: RuntimeConfig, token: string): void {
+  const current = readConfigFile(config.configPath)
+  writeConfigFile({
+    ...current,
+    baseUrl: config.baseUrl,
+    token,
+    tokenUpdatedAt: new Date().toISOString(),
+  }, config.configPath)
 }
 
 export function resolveRuntimeConfig(options: GlobalOptions = {}): RuntimeConfig {
